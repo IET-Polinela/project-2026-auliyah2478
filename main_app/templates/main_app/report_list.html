@@ -1,6 +1,8 @@
+<h1>Selamat Datang di Kota Tokyora</h1>
+<p>Aplikasi laporan masalah kota Tokyora</p>
 <h1>Daftar Laporan</h1>
 
-<a href="/add/">Tambah Laporan</a>
+<a href="{% url 'add_report' %}">Tambah Laporan</a>
 <a href="/">Home</a> |
 <a href="/about/">About</a> |
 <a href="/contacts/">Contact</a>
@@ -8,20 +10,39 @@
 <hr>
 
 {% for report in reports %}
-    <div style="border:1px solid black; padding:10px; margin-bottom:10px;">
-        
-        <p><b>Judul:</b> {{ report.title }}</p>
-        <p><b>Lokasi:</b> {{ report.location }}</p>
-        <p><b>Status:</b> {{ report.status }}</p>
+<div style="border:1px solid black; padding:10px; margin-bottom:10px;">
+    
+    <p><b>Judul:</b> {{ report.title }}</p>
+    <p><b>Lokasi:</b> {{ report.location }}</p>
+    <p><b>Status:</b> {{ report.status }}</p>
 
-        <a href="/update/{{ report.id }}">Edit</a> |
-        <a href="/delete/{{ report.id }}">Hapus</a> |
+    <a href="{% url 'report_detail' report.id %}">Detail</a> |
+    <a href="{% url 'update_report' report.id %}">Edit</a> |
+    <a href="{% url 'delete_report' report.id %}">Hapus</a>
 
-        {% if report.status == "REPORTED" %}
-            <a href="/verify/{{ report.id }}"> Verifikasi</a>
-        {% else %}
-            <span> Sudah Diverifikasi</span>
-        {% endif %}
+    {% if report.status == 'REPORTED' %}
+        <form method="post" action="{% url 'update_status' report.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="VERIFIED">
+            <button type="submit">Verifikasi</button>
+        </form>
+    {% endif %}
 
-    </div>
+    {% if report.status == 'VERIFIED' %}
+        <form method="post" action="{% url 'update_status' report.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="IN_PROGRESS">
+            <button type="submit">Proses</button>
+        </form>
+    {% endif %}
+
+    {% if report.status == 'IN_PROGRESS' %}
+        <form method="post" action="{% url 'update_status' report.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="RESOLVED">
+            <button type="submit">Selesai</button>
+        </form>
+    {% endif %}
+
+</div>
 {% endfor %}
