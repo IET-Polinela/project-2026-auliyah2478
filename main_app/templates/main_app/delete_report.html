@@ -1,8 +1,39 @@
-<h2>Yakin ingin menghapus?</h2>
+{% extends 'base.html' %}
 
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Hapus</button>
-</form>
+{% block content %}
 
-<a href="/">Batal</a>
+<div class="card p-4 shadow-sm">
+
+    {% if mode == 'status' %}
+        <h3>Yakin ingin mengubah status?</h3>
+
+        <p>
+            Laporan: <b>{{ object.title }}</b><br>
+            Status akan diubah menjadi:
+            <b>{{ new_status }}</b>
+        </p>
+    {% else %}
+        <h3>Yakin ingin menghapus?</h3>
+
+        <p>
+            Laporan: <b>{{ object.title }}</b><br>
+            Lokasi: {{ object.location }}
+        </p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if mode == 'status' %}
+            <input type="hidden" name="status" value="{{ new_status }}">
+            <button class="btn btn-primary">Ubah Status</button>
+        {% else %}
+            <button class="btn btn-danger">Hapus</button>
+        {% endif %}
+
+        <a href="{% url 'report_list' %}" class="btn btn-secondary">Batal</a>
+    </form>
+
+</div>
+
+{% endblock %}

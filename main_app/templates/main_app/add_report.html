@@ -1,12 +1,62 @@
-<h1>Tambah Laporan</h1>
-<a href="/">Home</a> |
-<a href="/about/">About</a> |
-<a href="/contacts/">Contact</a>
+{% extends 'base.html' %}
 
-<hr>
+{% block content %}
+
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'report_list' %}">Home</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'report_list' %}">Daftar Laporan</a>
+    </li>
+    <li class="breadcrumb-item active">
+      Tambah Laporan
+    </li>
+  </ol>
+</nav>
+
+<h2 class="mb-4">Tambah Laporan</h2>
 
 <form method="POST">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Simpan</button>
+
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Terjadi kesalahan!</strong>
+            {{ form.errors }}
+        </div>
+    {% endif %}
+
+    <div class="mb-3">
+        <label class="form-label">Judul</label>
+        {{ form.title }}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Kategori</label>
+        {{ form.category }}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Deskripsi</label>
+        {{ form.description }}
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Lokasi</label>
+        {{ form.location }}
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-success"
+        onclick="this.innerHTML='Loading...'; setTimeout(() => this.disabled=true, 100);">
+            Simpan
+        </button>
+    
+        <a href="{% url 'report_list' %}" class="btn btn-secondary">Kembali</a>
+    </div>
+
 </form>
+
+{% endblock %}

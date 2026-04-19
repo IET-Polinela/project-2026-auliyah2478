@@ -1,26 +1,23 @@
-<h1>Selamat Datang di Kota tokyora</h1>
+{% extends 'base.html' %}
 
-<p>Website laporan masalah kota tokyora</p>
+{% block content %}
 
-<a href="/add/">Tambah Laporan</a>
+<h2 class="text-center" style="color:#fb6f92;">
+    Selamat Datang di Kota Tokyora
+</h2>
 
-<hr>
+<p class="text-center">
+    Sistem pelaporan masalah Kota Tokyora
+</p>
 
-<h2>Daftar Laporan</h2>
+<div class="text-center mt-4">
+    <a href="{% url 'report_list' %}" class="btn btn-primary me-2">
+        Lihat Laporan
+    </a>
 
-{% for report in reports %}
-    <div style="border:1px solid black; padding:10px; margin-bottom:10px;">
-        <p><b>Judul:</b> {{ report.title }}</p>
-        <p><b>Lokasi:</b> {{ report.location }}</p>
-        <p><b>Status:</b> {{ report.status }}</p>
+    <a href="{% url 'add_report' %}" class="btn btn-success">
+        + Tambah Laporan
+    </a>
+</div>
 
-        <a href="/update/{{ report.id }}">Edit</a> |
-        <a href="/delete/{{ report.id }}">Hapus</a> |
-
-        {% if report.status == "REPORTED" %}
-            <a href="/verify/{{ report.id }}">✔ Verifikasi</a>
-        {% else %}
-            <span>✔ Sudah Diverifikasi</span>
-        {% endif %}
-    </div>
-{% endfor %}
+{% endblock %}

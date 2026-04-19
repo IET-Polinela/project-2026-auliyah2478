@@ -1,48 +1,100 @@
-<h1>Selamat Datang di Kota Tokyora</h1>
-<p>Aplikasi laporan masalah kota Tokyora</p>
-<h1>Daftar Laporan</h1>
+{% extends 'base.html' %}
 
-<a href="{% url 'add_report' %}">Tambah Laporan</a>
-<a href="/">Home</a> |
-<a href="/about/">About</a> |
-<a href="/contacts/">Contact</a>
+{% block content %}
 
-<hr>
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'report_list' %}">Home</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+      Daftar Laporan
+    </li>
+  </ol>
+</nav>
 
-{% for report in reports %}
-<div style="border:1px solid black; padding:10px; margin-bottom:10px;">
-    
-    <p><b>Judul:</b> {{ report.title }}</p>
-    <p><b>Lokasi:</b> {{ report.location }}</p>
-    <p><b>Status:</b> {{ report.status }}</p>
+<h2 class="text-center mb-3" style="color:#fb6f92;">
+    Daftar Laporan Kota Tokyora
+</h2>
 
-    <a href="{% url 'report_detail' report.id %}">Detail</a> |
-    <a href="{% url 'update_report' report.id %}">Edit</a> |
-    <a href="{% url 'delete_report' report.id %}">Hapus</a>
-
-    {% if report.status == 'REPORTED' %}
-        <form method="post" action="{% url 'update_status' report.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="status" value="VERIFIED">
-            <button type="submit">Verifikasi</button>
-        </form>
-    {% endif %}
-
-    {% if report.status == 'VERIFIED' %}
-        <form method="post" action="{% url 'update_status' report.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="status" value="IN_PROGRESS">
-            <button type="submit">Proses</button>
-        </form>
-    {% endif %}
-
-    {% if report.status == 'IN_PROGRESS' %}
-        <form method="post" action="{% url 'update_status' report.id %}">
-            {% csrf_token %}
-            <input type="hidden" name="status" value="RESOLVED">
-            <button type="submit">Selesai</button>
-        </form>
-    {% endif %}
-
+<div class="text-center mb-3">
+    <a href="{% url 'add_report' %}" class="btn btn-primary">
+        + Tambah Laporan
+    </a>
 </div>
-{% endfor %}
+
+<div class="table-responsive">
+<table class="table table-bordered table-sm text-center align-middle">
+    <thead>
+        <tr>
+            <th>Judul</th>
+            <th>Lokasi</th>
+            <th>Status</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for report in reports %}
+        <tr>
+            <td style="max-width:120px; word-wrap: break-word;">
+                {{ report.title }}
+            </td>
+
+            <td style="max-width:120px; word-wrap: break-word;">
+                {{ report.location }}
+            </td>
+
+            <td>
+                {% if report.status == 'REPORTED' %}
+                    <span class="badge bg-secondary">Reported</span>
+                {% elif report.status == 'VERIFIED' %}
+                    <span class="badge bg-info">Verified</span>
+                {% elif report.status == 'IN_PROGRESS' %}
+                    <span class="badge bg-warning">In Progress</span>
+                {% elif report.status == 'RESOLVED' %}
+                    <span class="badge bg-success">Resolved</span>
+                {% endif %}
+            </td>
+
+            <td>
+                <div class="d-flex flex-wrap justify-content-center gap-1">
+
+                    <a href="{% url 'report_detail' report.id %}" class="btn btn-info btn-sm">Detail</a>
+                    <a href="{% url 'update_report' report.id %}" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="{% url 'delete_report' report.id %}" class="btn btn-danger btn-sm">Hapus</a>
+
+                    {% if report.status == 'REPORTED' %}
+                    <a href="{% url 'update_status' report.id %}?status=VERIFIED" 
+                       class="btn btn-primary btn-sm">Verifikasi</a>
+                    {% endif %}
+
+                    {% if report.status == 'VERIFIED' %}
+                    <a href="{% url 'update_status' report.id %}?status=IN_PROGRESS" 
+                       class="btn btn-warning btn-sm">Proses</a>
+                    {% endif %}
+
+                    {% if report.status == 'IN_PROGRESS' %}
+                    <a href="{% url 'update_status' report.id %}?status=RESOLVED" 
+                       class="btn btn-success btn-sm">Selesai</a>
+                    {% endif %}
+
+                </div>
+            </td>
+        </tr>
+
+        {% empty %}
+        <tr>
+            <td colspan="4">
+                Belum ada laporan <br>
+                <a href="{% url 'add_report' %}" class="btn btn-primary mt-2">
+                    Tambah Laporan
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% endblock %}

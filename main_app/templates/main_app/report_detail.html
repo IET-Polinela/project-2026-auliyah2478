@@ -1,11 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'report_list' %}">Home</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'report_list' %}">Daftar Laporan</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+      Detail Laporan
+    </li>
+  </ol>
+</nav>
+
 <h1>Detail Laporan</h1>
 
 <p>Judul: {{ object.title }}</p>
 <p>Kategori: {{ object.category }}</p>
 <p>Keterangan: {{ object.description }}</p>
 <p>Lokasi: {{ object.location }}</p>
-<p>Status: {{ object.status }}</p>
-<p><b>Dibuat pada:</b> {{ report.created_at|date:"d F Y, H:i" }} WIB</p>
+<p>Status:
+    {% if object.status == 'REPORTED' %}
+        <span class="badge bg-secondary">Reported</span>
+    {% elif object.status == 'VERIFIED' %}
+        <span class="badge bg-info">Verified</span>
+    {% elif object.status == 'IN_PROGRESS' %}
+        <span class="badge bg-warning">In Progress</span>
+    {% elif object.status == 'RESOLVED' %}
+        <span class="badge bg-success">Resolved</span>
+    {% endif %}
+</p>
+<p><b>Dibuat pada:</b> {{ object.created_at|date:"d F Y, H:i" }} WIB</p>
 <hr>
 
-<a href="/">Kembali</a>
+<div class="mt-3">
+    <a href="{% url 'report_list' %}" class="btn btn-secondary">Kembali</a>
+</div>
+
+{% endblock %}
