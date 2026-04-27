@@ -97,6 +97,28 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/contacts/">Contact</a>
                 </li>
+
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="nav-link">Halo, {{ user.username }}</span>
+                    </li>
+
+                    <!-- FIX LOGOUT -->
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link btn btn-link p-0 border-0">
+                                Logout
+                            </button>
+                        </form>
+                    </li>
+
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                {% endif %}
+
             </ul>
         </div>
     </div>
