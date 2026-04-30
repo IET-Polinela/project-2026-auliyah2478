@@ -12,4 +12,7 @@ urlpatterns = [
 
     # workflow
     path('update-status/<int:pk>/', ReportUpdateStatusView.as_view(), name='update_status'),
+
+    path('reports/search/', report_search, name='report_search'),
+    path('reports/detail-json/<int:pk>/', report_detail_json, name='report_detail_json'),
 ]

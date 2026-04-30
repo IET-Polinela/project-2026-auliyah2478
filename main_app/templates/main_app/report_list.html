@@ -17,10 +17,17 @@
     Daftar Laporan Kota Tokyora
 </h2>
 
+{% if user.is_admin %}
 <div class="text-center mb-3">
     <a href="{% url 'add_report' %}" class="btn btn-primary">
         + Tambah Laporan
     </a>
+</div>
+{% endif %}
+
+<div class="mb-3">
+    <input type="text" id="searchInput" class="form-control"
+           placeholder="Cari laporan berdasarkan judul, kategori, lokasi, atau status...">
 </div>
 
 <div class="table-responsive">
@@ -34,7 +41,7 @@
         </tr>
     </thead>
 
-    <tbody>
+    <tbody id="reportTableBody">
         {% for report in reports %}
         <tr>
             <td style="max-width:120px; word-wrap: break-word;">
@@ -58,43 +65,149 @@
             </td>
 
             <td>
-                <div class="d-flex flex-wrap justify-content-center gap-1">
+                <button class="btn btn-info btn-sm detail-btn" data-id="{{ report.id }}">
+                    Detail
+                </button>
 
-                    <a href="{% url 'report_detail' report.id %}" class="btn btn-info btn-sm">Detail</a>
-                    <a href="{% url 'update_report' report.id %}" class="btn btn-warning btn-sm">Edit</a>
-                    <a href="{% url 'delete_report' report.id %}" class="btn btn-danger btn-sm">Hapus</a>
+                {% if user.is_admin %}
+                <a href="{% url 'update_report' report.id %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'delete_report' report.id %}" class="btn btn-danger btn-sm">Hapus</a>
 
-                    {% if report.status == 'REPORTED' %}
-                    <a href="{% url 'update_status' report.id %}?status=VERIFIED" 
-                       class="btn btn-primary btn-sm">Verifikasi</a>
-                    {% endif %}
+                {% if report.status == 'REPORTED' %}
+                <a href="{% url 'update_status' report.id %}?status=VERIFIED" 
+                   class="btn btn-primary btn-sm">Verifikasi</a>
+                {% endif %}
 
-                    {% if report.status == 'VERIFIED' %}
-                    <a href="{% url 'update_status' report.id %}?status=IN_PROGRESS" 
-                       class="btn btn-warning btn-sm">Proses</a>
-                    {% endif %}
+                {% if report.status == 'VERIFIED' %}
+                <a href="{% url 'update_status' report.id %}?status=IN_PROGRESS" 
+                   class="btn btn-warning btn-sm">Proses</a>
+                {% endif %}
 
-                    {% if report.status == 'IN_PROGRESS' %}
-                    <a href="{% url 'update_status' report.id %}?status=RESOLVED" 
-                       class="btn btn-success btn-sm">Selesai</a>
-                    {% endif %}
-
-                </div>
+                {% if report.status == 'IN_PROGRESS' %}
+                <a href="{% url 'update_status' report.id %}?status=RESOLVED" 
+                   class="btn btn-success btn-sm">Selesai</a>
+                {% endif %}
+                {% endif %}
             </td>
         </tr>
 
         {% empty %}
         <tr>
-            <td colspan="4">
-                Belum ada laporan <br>
-                <a href="{% url 'add_report' %}" class="btn btn-primary mt-2">
-                    Tambah Laporan
-                </a>
-            </td>
+            <td colspan="4">Belum ada laporan</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 </div>
+
+<!-- MODAL DETAIL -->
+<div class="modal fade" id="reportDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Laporan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <h5 id="modalTitle"></h5>
+                <p><strong>Kategori:</strong> <span id="modalCategory"></span></p>
+                <p><strong>Lokasi:</strong> <span id="modalLocation"></span></p>
+                <p><strong>Deskripsi:</strong></p>
+                <p id="modalDescription"></p>
+                <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+                <p><strong>Dibuat:</strong> <span id="modalCreatedAt"></span></p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const reportTableBody = document.getElementById('reportTableBody');
+    let debounceTimer;
+
+    function getStatusBadge(status) {
+        if (status === 'REPORTED') {
+            return '<span class="badge bg-secondary">Reported</span>';
+        } else if (status === 'VERIFIED') {
+            return '<span class="badge bg-info">Verified</span>';
+        } else if (status === 'IN_PROGRESS') {
+            return '<span class="badge bg-warning">In Progress</span>';
+        } else if (status === 'RESOLVED') {
+            return '<span class="badge bg-success">Resolved</span>';
+        }
+        return `<span class="badge bg-dark">${status}</span>`;
+    }
+
+    function loadReports(keyword) {
+        fetch(`/reports/search/?q=${encodeURIComponent(keyword)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Data JSON Live Search:", data);
+
+                reportTableBody.innerHTML = '';
+
+                if (data.reports.length === 0) {
+                    reportTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="4">Data tidak ditemukan</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                data.reports.forEach(report => {
+                    reportTableBody.innerHTML += `
+                        <tr>
+                            <td style="max-width:120px; word-wrap: break-word;">${report.title}</td>
+                            <td style="max-width:120px; word-wrap: break-word;">${report.location}</td>
+                            <td>${getStatusBadge(report.status)}</td>
+                            <td>
+                                <button class="btn btn-info btn-sm detail-btn" data-id="${report.id}">
+                                    Detail
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+    }
+
+    searchInput.addEventListener('keyup', function () {
+        clearTimeout(debounceTimer);
+
+        debounceTimer = setTimeout(function () {
+            loadReports(searchInput.value);
+        }, 500);
+    });
+
+    // Event Delegation untuk tombol detail yang muncul dari hasil Live Search
+    reportTableBody.addEventListener('click', function (event) {
+        if (event.target.classList.contains('detail-btn')) {
+            const reportId = event.target.getAttribute('data-id');
+
+            fetch(`/reports/detail-json/${reportId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Data JSON Detail:", data);
+
+                    document.getElementById('modalTitle').innerText = data.title;
+                    document.getElementById('modalCategory').innerText = data.category;
+                    document.getElementById('modalLocation').innerText = data.location;
+                    document.getElementById('modalDescription').innerText = data.description;
+                    document.getElementById('modalCreatedAt').innerText = data.created_at;
+                    document.getElementById('modalStatus').innerHTML = getStatusBadge(data.status);
+
+                    const modal = new bootstrap.Modal(document.getElementById('reportDetailModal'));
+                    modal.show();
+                });
+        }
+    });
+});
+</script>
 
 {% endblock %}
