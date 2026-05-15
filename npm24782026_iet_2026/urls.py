@@ -34,4 +34,6 @@ urlpatterns = [
 
     # DASHBOARD
     path('dashboard/', include('dashboard_24782026.urls')),
+
+    path('api/', include('main_app.api_urls')),
 ]
