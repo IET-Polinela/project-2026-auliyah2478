@@ -18,6 +18,7 @@ class ReportSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         ]
+        read_only_fields = ['reporter', 'created_at', 'updated_at']
 
     def get_reporter(self, obj):
         return "Warga Anonim"
