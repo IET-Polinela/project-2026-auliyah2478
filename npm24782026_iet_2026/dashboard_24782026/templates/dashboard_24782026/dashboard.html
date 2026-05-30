@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="text-center mb-4" style="color:#fb6f92;">
+    Dashboard Statistik Laporan
+</h2>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card p-3 shadow-sm">
+            <h5 class="text-center">Distribusi Status Laporan</h5>
+            <canvas id="statusChart"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card p-3 shadow-sm">
+            <h5 class="text-center">Distribusi Kategori Laporan</h5>
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<div class="row mt-4">
+    <!-- REPORTED -->
+    <div class="col-md-6">
+        <h5>5 Laporan Terakhir Dilaporkan</h5>
+        <table class="table table-bordered table-sm text-center">
+            <thead>
+                <tr>
+                    <th>Judul</th>
+                    <th>Kategori</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="latestReportedTable"></tbody>
+        </table>
+    </div>
+
+    <!-- RESOLVED -->
+    <div class="col-md-6">
+        <h5>5 Laporan Terakhir Selesai</h5>
+        <table class="table table-bordered table-sm text-center">
+            <thead>
+                <tr>
+                    <th>Judul</th>
+                    <th>Kategori</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="latestResolvedTable"></tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    fetch('/dashboard/data/')
+        .then(response => response.json())
+        .then(data => {
+
+            console.log("Data JSON Dashboard:", data);
+
+            // ===== DOUGHNUT (STATUS) =====
+            const statusLabels = data.status_data.map(item => item.status);
+            const statusCounts = data.status_data.map(item => item.total);
+
+            new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        label: 'Jumlah Status',
+                        data: statusCounts
+                    }]
+                }
+            });
+
+            // ===== BAR (CATEGORY) =====
+            const categoryLabels = data.category_data.map(item => item.category);
+            const categoryCounts = data.category_data.map(item => item.total);
+
+            new Chart(document.getElementById('categoryChart'), {
+                type: 'bar',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        label: 'Jumlah Laporan',
+                        data: categoryCounts
+                    }]
+                }
+            });
+
+            // ===== TABLE REPORTED =====
+            const reportedTable = document.getElementById('latestReportedTable');
+            reportedTable.innerHTML = '';
+
+            data.latest_reported.forEach(report => {
+                reportedTable.innerHTML += `
+                    <tr>
+                        <td>${report.title}</td>
+                        <td>${report.category}</td>
+                        <td><span class="badge bg-secondary">${report.status}</span></td>
+                    </tr>
+                `;
+            });
+
+            // ===== TABLE RESOLVED =====
+            const resolvedTable = document.getElementById('latestResolvedTable');
+            resolvedTable.innerHTML = '';
+
+            data.latest_resolved.forEach(report => {
+                resolvedTable.innerHTML += `
+                    <tr>
+                        <td>${report.title}</td>
+                        <td>${report.category}</td>
+                        <td><span class="badge bg-success">${report.status}</span></td>
+                    </tr>
+                `;
+            });
+
+        });
+});
+</script>
+
+{% endblock %}

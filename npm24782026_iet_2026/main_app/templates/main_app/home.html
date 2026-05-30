@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="text-center" style="color:#fb6f92;">
+    Selamat Datang di Kota Tokyora
+</h2>
+
+<p class="text-center">
+    Sistem pelaporan masalah Kota Tokyora
+</p>
+
+<div class="text-center mt-4">
+    <a href="{% url 'report_list' %}" class="btn btn-primary me-2">
+        Lihat Laporan
+    </a>
+
+    <a href="{% url 'add_report' %}" class="btn btn-success">
+        + Tambah Laporan
+    </a>
+</div>
+
+{% endblock %}
