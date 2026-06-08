@@ -35,73 +35,92 @@ const routes = {
   
     dashboard: `
       <section class="row g-4">
-  
-        <!-- MENU -->
+
+        <!-- SIDEBAR -->
         <aside class="col-12 col-lg-3">
-  
+
           <div class="card p-3">
-  
+
             <h5>
               <i class="bi bi-clipboard-data me-2"></i>
-              Menu Laporan
+              Tokyora City
             </h5>
-  
-            <button class="btn btn-pink w-100 mt-3">
+
+            <button
+              class="btn btn-pink w-100 mt-3"
+              data-bs-toggle="modal"
+              data-bs-target="#reportModal">
+
               <i class="bi bi-plus-circle-fill me-2"></i>
               Buat Laporan Baru
+
             </button>
-  
+
+            <hr>
+
+            <h6>Rekap Status</h6>
+
+            <p class="mb-1">
+              Draft :
+              <span id="draftCount">0</span>
+            </p>
+
+            <p class="mb-1">
+              Diproses :
+              <span id="progressCount">0</span>
+            </p>
+
+            <p class="mb-0">
+              Selesai :
+              <span id="resolvedCount">0</span>
+            </p>
+
           </div>
-  
+
         </aside>
-  
+
         <!-- CONTENT -->
-        <section class="col-12 col-lg-6">
-  
-          <div class="card p-4 text-center">
-  
-            <h3 class="fw-bold welcome-title">
-              Selamat Datang, ${localStorage.getItem("username")}
-            </h3>
-  
-            <p class="text-muted">
-              Portal Citizen Tokyora City untuk mengakses layanan laporan warga.
-            </p>
-  
-            <div class="alert alert-success">
-              <i class="bi bi-check-circle-fill me-2"></i>
-              Login berhasil dan token tersimpan.
-            </div>
-  
-          </div>
-  
-        </section>
-  
-        <!-- INFO -->
-        <aside class="col-12 col-lg-3">
-  
+        <section class="col-12 col-lg-9">
+
           <div class="card p-3">
-  
-            <h5>
-              <i class="bi bi-info-circle-fill me-2"></i>
-              Informasi
-            </h5>
-  
-            <p class="text-muted mb-0">
-              Gunakan portal ini untuk membuat dan memantau laporan warga.
-            </p>
-  
+
+            <div class="d-flex gap-2 mb-3">
+
+              <button
+                class="btn btn-pink"
+                onclick="loadDashboardData('my_reports', 1)">
+                Laporan Saya
+              </button>
+
+              <button
+                class="btn btn-outline-secondary"
+                onclick="loadDashboardData('feed', 1)">
+                Feed Kota
+              </button>
+
+            </div>
+
+            <div
+              id="listContainer"
+              class="row g-3">
+            </div>
+
+            <div
+              id="paginationContainer"
+              class="mt-4">
+            </div>
+
           </div>
-  
-        </aside>
-  
+
+        </section>
+
       </section>
     `
   };
   
   
   function handleRouting() {
-  
+
     const app = document.getElementById("app-content");
   
     const hash = window.location.hash.replace("#", "") || "login";
@@ -120,10 +139,13 @@ const routes = {
   
       if (!token) {
         window.location.hash = "#login";
+        return;
       }
+  
+      loadDashboardData();
     }
   }
   
   window.addEventListener("hashchange", handleRouting);
-  
+
   window.addEventListener("DOMContentLoaded", handleRouting);
