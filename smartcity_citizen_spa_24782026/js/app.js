@@ -49,6 +49,7 @@ async function loadDashboardData(
 
     renderList();
     renderPagination();
+    updateTabButtons();
     loadSummaryStats();
 
   } else {
@@ -242,6 +243,29 @@ function renderPagination() {
   paginationContainer.innerHTML = html;
 }
 
+function updateTabButtons() {
+
+  const btnMyReports =
+    document.getElementById("btnMyReports");
+
+  const btnFeed =
+    document.getElementById("btnFeed");
+
+  if (!btnMyReports || !btnFeed) return;
+
+  if (currentTab === "my_reports") {
+
+    btnMyReports.className = "btn btn-pink";
+    btnFeed.className = "btn btn-outline-secondary";
+
+  } else {
+
+    btnMyReports.className = "btn btn-outline-secondary";
+    btnFeed.className = "btn btn-pink";
+
+  }
+}
+
 function getReportFormData() {
 
   return {
@@ -274,6 +298,11 @@ async function submitReport(status) {
       "POST",
       reportData
     );
+
+    if (response.status === 403) {
+      alert("Admin tidak diperbolehkan membuat laporan.");
+      return;
+    }
 
   } else {
 

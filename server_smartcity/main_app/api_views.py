@@ -1,3 +1,4 @@
+from rest_framework.exceptions import PermissionDenied
 from rest_framework import viewsets, permissions
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
@@ -54,4 +55,13 @@ class ReportViewSet(viewsets.ModelViewSet):
         return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
-        serializer.save(reporter=self.request.user)
+       
+
+        if self.request.user.is_admin:
+            raise PermissionDenied(
+                "Admin tidak diperbolehkan membuat laporan."
+            )
+
+        serializer.save(
+            reporter=self.request.user
+        )

@@ -87,12 +87,14 @@ const routes = {
             <div class="d-flex gap-2 mb-3">
 
               <button
+                id="btnMyReports"
                 class="btn btn-pink"
                 onclick="loadDashboardData('my_reports', 1)">
                 Laporan Saya
               </button>
 
               <button
+                id="btnFeed"
                 class="btn btn-outline-secondary"
                 onclick="loadDashboardData('feed', 1)">
                 Feed Kota
