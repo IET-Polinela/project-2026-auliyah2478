@@ -27,7 +27,13 @@ const routes = {
             </button>
   
           </form>
-  
+
+          <p class="text-center mt-3">
+              Belum punya akun?
+              <a href="http://103.151.63.84:8008/accounts/register/" target="_blank">
+                Daftar di sini
+            </a>
+          </p>
         </div>
   
       </section>
