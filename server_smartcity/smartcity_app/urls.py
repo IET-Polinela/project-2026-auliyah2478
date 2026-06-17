@@ -19,6 +19,8 @@ from django.urls import path, include
 from usermanagement_24782026.views import CustomLoginView, custom_logout
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from usermanagement_24782026.api_views import RegisterAPIView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from django_scalar.views import scalar_viewer
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -43,4 +45,22 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
     path('api/register/', RegisterAPIView.as_view(), name='api_register'),
+
+    path(
+        'api/schema/',
+        SpectacularAPIView.as_view(),
+        name='schema'
+    ),
+
+    path(
+        'api/docs/swagger/',
+        SpectacularSwaggerView.as_view(url_name='schema'),
+        name='swagger-ui'
+    ),
+
+    path(
+        'api/docs/scalar/',
+        scalar_viewer,
+        name='scalar-ui'
+    ),
 ]
